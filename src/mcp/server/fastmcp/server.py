@@ -49,6 +49,7 @@ from mcp.types import PromptArgument as MCPPromptArgument
 from mcp.types import Resource as MCPResource
 from mcp.types import ResourceTemplate as MCPResourceTemplate
 from mcp.types import Tool as MCPTool
+from mcp.server.lowlevel.server  import NotificationOptions
 
 logger = get_logger(__name__)
 
@@ -148,6 +149,7 @@ class FastMCP(Generic[LifespanResultT]):
         lifespan: Callable[[FastMCP[LifespanResultT]], AbstractAsyncContextManager[LifespanResultT]] | None = None,
         auth: AuthSettings | None = None,
         transport_security: TransportSecuritySettings | None = None,
+        notification_options: NotificationOptions | None = None,
     ):
         self.settings = Settings(
             debug=debug,
@@ -180,6 +182,7 @@ class FastMCP(Generic[LifespanResultT]):
             # TODO(Marcelo): It seems there's a type mismatch between the lifespan type from an FastMCP and Server.
             # We need to create a Lifespan type that is a generic on the server type, like Starlette does.
             lifespan=(lifespan_wrapper(self, self.settings.lifespan) if self.settings.lifespan else default_lifespan),  # type: ignore
+            notification_options=notification_options,
         )
         self._tool_manager = ToolManager(tools=tools, warn_on_duplicate_tools=self.settings.warn_on_duplicate_tools)
         self._resource_manager = ResourceManager(warn_on_duplicate_resources=self.settings.warn_on_duplicate_resources)
